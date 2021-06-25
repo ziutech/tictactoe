@@ -6,4 +6,4 @@
 1. using factory functions and modules
 
 ### Todos:
- ---
+// for now none
