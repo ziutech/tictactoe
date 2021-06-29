@@ -1,4 +1,5 @@
 const Player = (symbol) => {
+	let name;
 	return { symbol };
 };
 
@@ -6,11 +7,11 @@ const Player = (symbol) => {
 const Game = (() => {
 	const board = ["", "", "", "", "", "", "", "", ""];
 
-	let _inputPermitted = true;
-	const isInputPermitted = () => _inputPermitted;
-	const stopInput = () => (_inputPermitted = false);
+	let _gameOver = false;
+	const isGameOver = () => _gameOver;
+	const endGame = () => (_gameOver = false);
 	const setBoardCell = (index, symbol) => {
-		if (!board[index] && _inputPermitted) board[index] = symbol;
+		if (!board[index] && !_gameOver) board[index] = symbol;
 	};
 
 	const checkWin = () => {
@@ -26,7 +27,7 @@ const Game = (() => {
 		];
 		console.clear();
 		for (let i = 0; i < winConditions.length; i++) {
-			// temporary array storing those values from board which are aligned
+			// temporary array storing those values from board which are in a line
 			const temp = [
 				board[winConditions[i][0]],
 				board[winConditions[i][1]],
@@ -34,7 +35,6 @@ const Game = (() => {
 			];
 			// checks if temp has at least one element which is an empty string
 			if (temp.some((el) => el == "")) {
-				console.log("JAKIEŚ SĄ");
 				continue;
 			}
 			// checks if temp has only one symbol
@@ -73,8 +73,8 @@ const Game = (() => {
 		changeCurrentPlayer,
 		reset,
 		checkWin,
-		stopInput,
-		isInputPermitted,
+		endGame,
+		isGameOver,
 	};
 })();
 
@@ -91,6 +91,8 @@ const Display = (() => {
 		_menu.appendChild(label);
 	};
 
+	const hideWinnerLabel = () => _menu.removeChild(_menu.lastChild);
+
 	const _cells = document.querySelectorAll(".cell");
 	const setupCells = (func) => {
 		_cells.forEach((cell) => {
@@ -103,8 +105,7 @@ const Display = (() => {
 	};
 
 	const reload = (board) => {
-		const cells = [..._game.children];
-		cells.forEach((cell) => {
+		_cells.forEach((cell) => {
 			cell.textContent = board[cell.dataset.index];
 		});
 	};
@@ -113,18 +114,18 @@ const Display = (() => {
 	const onRestart = (func) => {
 		_restartButton.addEventListener("click", func);
 	};
-	return { reload, setupCells, onRestart, showWinner };
+	return { reload, setupCells, onRestart, showWinner, hideWinnerLabel };
 })();
 
 // adds on click event for cells
 Display.setupCells(function () {
-	if (Game.isInputPermitted()) {
+	if (!Game.isGameOver()) {
 		Game.setBoardCell(this.dataset.index, Game.getCurrentPlayer().symbol); // this == individual cell
 		Display.reload(Game.board);
 		const winner = Game.checkWin();
 		if (winner !== "") {
 			Display.showWinner(winner);
-			Game.stopInput();
+			Game.endGame();
 			console.log(winner);
 		}
 		Game.changeCurrentPlayer();
@@ -134,5 +135,6 @@ Display.setupCells(function () {
 // adds on click for a restart button
 Display.onRestart(function () {
 	Game.reset();
+	Display.hideWinnerLabel();
 	Display.reload(Game.board);
 });
