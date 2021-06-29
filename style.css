@@ -1,0 +1,19 @@
+.game {
+	width: 600px;
+	height: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: yellowgreen;
+	padding: 15px;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	grid-gap: 3px;
+}
+
+h1 {
+	text-align: center;
+}
+.cell {
+	font-size: 40px;
+	border: 2px solid black;
+}
